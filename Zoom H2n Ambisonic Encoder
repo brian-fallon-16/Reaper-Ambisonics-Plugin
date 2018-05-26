@@ -1,0 +1,44 @@
+desc: Zoom H2n Ambisonic Encoder
+//tags: ambisonics zoom h2n
+//author: Brian Fallon
+
+// First-order horizontal ambisonics encoder for the Zoom H2n
+// FOR HELP WITH CONFIGURATION, CONSULT USER MANUAL
+
+slider1:0<0,1,1{ACN,Furse Malham}>Channel Ordering
+slider2:0<0,1,1{SN3D,Furse Malham,N3D}>Normalisation Scheme
+
+@slider
+  
+  // Normalization Scheme
+  slider2 == 0? (norm_W = 1; norm_XYZ = 1;);          //SN3D
+  slider2 == 1? (norm_W = 1/sqrt(2); norm_XYZ = 1;);  //FuMa
+  slider2 == 2? (norm_W = 1; norm_XYZ = sqrt(3););    //N3D
+  
+@sample
+
+  // Get B-format from H2n's Lf, Rf, Lb, Rb signals
+  W = (norm_W)*(spl0+spl1+((spl2+spl3)*sqrt(2)))/(2*(1+sqrt(2)));
+  X = (norm_XYZ)*(spl0+spl1-spl2-spl3)/(2+sqrt(2));
+  Y = (norm_XYZ)*(spl0-spl1)/2;  
+  Z = 0;
+    
+  // Order Channels
+  // Zeroth component first
+  spl0=W;
+  
+  // ACN
+  slider1 == 0?
+  (
+    spl1 = Y;
+    spl2 = Z;
+    spl3 = X;
+  );
+  
+  // Fuma
+  slider1 == 1? 
+  (
+    spl1 = X;
+    spl2 = Y;
+    spl3 = Z;
+  );
